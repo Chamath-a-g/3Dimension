@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+// This function is used to load external 3D models dynamically using GLTF loader.
 export function loadModel(scene, modelPath) {
     const loader = new GLTFLoader();
     loader.load(
