@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask + Three.js</title>
+    <title>Flask + Three.js + OBJ</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/OBJLoader.js"></script>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
@@ -13,19 +14,19 @@
 <body>
 
 <script>
-    // Set up the scene, camera, and renderer
+    // Setup Scene, Camera, Renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Create a cube
+    // Add a Rotating Cube as a Demo
     const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
-
+    
     camera.position.z = 5;
 
     // Animation loop
@@ -37,7 +38,15 @@
     }
     animate();
 
-    // Resize handler
+    // Load an OBJ model from Flask's Static Folder
+    const loader = new THREE.OBJLoader();
+    loader.load('/static/models/model.obj', function(obj) {
+        scene.add(obj);  // Add the loaded OBJ model to the scene
+    }, undefined, function(error) {
+        console.error('Error loading OBJ model:', error);
+    });
+
+    // Adjust camera and renderer on window resize
     window.addEventListener('resize', () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
         camera.aspect = window.innerWidth / window.innerHeight;
