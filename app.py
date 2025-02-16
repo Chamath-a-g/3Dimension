@@ -1,10 +1,11 @@
-from flask import Flask, render_template
+from flask import Flask, send_file
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return render_template("index.html")  # Serve the HTML page with Three.js
+@app.route("/get-image")
+def get_image():
+    # Serve the texture image from the 'static/images' folder
+    return send_file("static/images/texture.jpg", mimetype="image/jpeg")
 
 if __name__ == "__main__":
     app.run(debug=True)

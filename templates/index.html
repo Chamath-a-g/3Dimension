@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask + Three.js + OBJ</title>
+    <title>Flask + Three.js with API Image</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/OBJLoader.js"></script>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
@@ -21,9 +20,22 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Add a Rotating Cube as a Demo
+    // Load the image (texture) from Flask's API
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load('/get-image', function() {
+        console.log('Texture loaded successfully'); // Debugging log for successful texture load
+    }, undefined, function(error) {
+        console.error('Texture load failed:', error); // Debugging log for error
+    });
+
+    // Check if texture is null or undefined
+    if (!texture) {
+        console.error("Texture is not loading.");
+    }
+
+    // Apply the texture to a material and add it to a 3D object (cube)
     const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    const material = new THREE.MeshBasicMaterial({ map: texture });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
     
@@ -37,14 +49,6 @@
         renderer.render(scene, camera);
     }
     animate();
-
-    // Load an OBJ model from Flask's Static Folder
-    const loader = new THREE.OBJLoader();
-    loader.load('/static/models/model.obj', function(obj) {
-        scene.add(obj);  // Add the loaded OBJ model to the scene
-    }, undefined, function(error) {
-        console.error('Error loading OBJ model:', error);
-    });
 
     // Adjust camera and renderer on window resize
     window.addEventListener('resize', () => {
