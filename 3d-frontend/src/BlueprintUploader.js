@@ -5,14 +5,25 @@ function BlueprintUploader() {
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState(""); // State for error messages
 
+  const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
   const validTypes = ["image/png", "image/jpeg", "image/jpg"];
 
   const handleFileChange = (selectedFile) => {
     if (selectedFile) {
       const fileType = selectedFile.type;
+      const fileSize = selectedFile.size;
 
+      // Validate file type
       if (!validTypes.includes(fileType)) {
         setError("Only .png, .jpg, and .jpeg files are allowed!");
+        setFile(null);
+        setPreview(null);
+        return;
+      }
+
+      // Validate file size
+      if (fileSize > MAX_FILE_SIZE) {
+        setError("File size must be under 20MB!");
         setFile(null);
         setPreview(null);
         return;
@@ -88,9 +99,7 @@ function BlueprintUploader() {
 
       <button
         onClick={handleUpload}
-        className={`px-4 py-2 rounded text-white ${
-          file ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"
-        }`}
+        className={`px-4 py-2 rounded text-white ${file ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"}`}
         disabled={!file} // Disable button if no file is selected
       >
         Upload Blueprint
