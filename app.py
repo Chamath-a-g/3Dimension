@@ -10,7 +10,7 @@ CORS(app)  # Allow requests from React frontend
 UPLOAD_FOLDER = 'uploads'
 PROCESSED_FOLDER = 'processed'
 
-# Create folders if they don't exist
+# Create folders if they don't existttttttttttttttttttttttt
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
