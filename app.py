@@ -14,7 +14,7 @@ PROCESSED_FOLDER = 'processed'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
-#Function to process image (convert to grayscale)
+# Function to process image (convert to grayscale)
 def process_image(image_path):
     try:
         img = cv2.imread(image_path)
@@ -27,7 +27,7 @@ def process_image(image_path):
     except Exception as e:
         return None
 
-#New API Route: Upload a file from React
+# New API Route: Upload a file from React
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
