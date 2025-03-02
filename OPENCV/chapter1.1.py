@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 
 # Load the image
-image_path = "/Users/imashiariyasinghe/Documents/GitHub/3Dimension/OPENCV/Photos/bp5.png"
+image_path = "/Users/imashiariyasinghe/Documents/GitHub/3Dimension/OPENCV/Photos/blueprint3.jpg"
 image = cv.imread(image_path)
 
 if image is None:

@@ -116,7 +116,6 @@ cv.imshow("Walls (Green)", wall_image)
 cv.imshow("Doors (Blue)", door_image)
 cv.imshow("Windows (Red)", window_image)
 cv.imshow("All Features", result_image)
-cv.imshow("Edges", dilated_edges)
 
 cv.waitKey(0)
 cv.destroyAllWindows()
