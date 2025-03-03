@@ -11,7 +11,6 @@ from functools import wraps
 
 app = Flask(__name__)
 
-# Configuration
 API_KEYS = {'your-secure-api-key'}
 
 # Initialize rate limiter
