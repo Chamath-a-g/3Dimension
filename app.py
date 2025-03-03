@@ -11,33 +11,47 @@ from functools import wraps
 
 app = Flask(__name__)
 
+# Define constants for API keys
 API_KEYS = {'your-secure-api-key'}
+
+# Define constants for status messages
+STATUS_SUCCESS = "success"
+MESSAGE_SUCCESS = "Data retrieved successfully"
+
+# Define constants for error messages
+ERROR_MESSAGES = {
+    'NO_FILE': {'message': 'No file part in request', 'code': 400},
+    'NO_SELECTED_FILE': {'message': 'No file selected', 'code': 400},
+    'INVALID_IMAGE': {'message': 'Invalid or corrupted image file', 'code': 400},
+    'FILE_TOO_LARGE': {'message': 'File size exceeds maximum allowed size of 20MB', 'code': 413},
+    'PROCESSING_ERROR': {'message': 'Error processing image', 'code': 500},
+    'INVALID_FILE_TYPE': {'message': 'Invalid file type. Only JPEG, PNG, and GIF are allowed', 'code': 400},
+    'DIMENSIONS_TOO_LARGE': {'message': 'Image dimensions exceed 5000x5000 pixels', 'code': 400},
+    'UNAUTHORIZED_ACCESS': {'message': 'Unauthorized access', 'code': 401},
+    'RATE_LIMIT_EXCEEDED': {'message': 'Rate limit exceeded. Try again later.', 'code': 429}
+}
+
+# Helper function to generate the JSON response
+def generate_response(items, current_page, total_pages, total_items):
+    return {
+        "status": STATUS_SUCCESS,
+        "message": MESSAGE_SUCCESS,
+        "data": {
+            "items": items,
+            "pagination": {
+                "current_page": current_page,
+                "total_pages": total_pages,
+                "total_items": total_items
+            }
+        }
+    }
 
 # Initialize rate limiter
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
     default_limits=['200 per day', '50 per hour']
-){
-  "status": "success",  // Indicates the success or failure of the request
-  "message": "Data retrieved successfully",  // A human-readable message
-  "data": {  // Main data payload
-    "items": [  // Array of items (can be objects or primitive types)
-      {
-        "id": "123",  // Unique identifier for the item
-        "name": "Item Name",  // Name or title of the item
-        "description": "Description of the item",  // Description of the item
-        "created_at": "2025-03-03T16:20:37+05:30",  // Timestamp of creation
-        "updated_at": "2025-03-03T16:20:37+05:30"  // Timestamp of last update
-      }
-    ],
-    "pagination": {  // Optional pagination information
-      "current_page": 1,
-      "total_pages": 5,
-      "total_items": 100
-    }
-  }  
-}
+)
 
 # Security headers
 @app.after_request
@@ -61,8 +75,11 @@ def require_api_key(f):
 # Update CORS configuration
 CORS(app, origins=['https://your-frontend-domain.com'], methods=['GET', 'POST'])
 
+# Define constants for upload and processed folders
 UPLOAD_FOLDER = 'uploads'
 PROCESSED_FOLDER = 'processed'
+
+# Define constant for max file size
 MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB in bytes
 
 # Set max file size limit in Flask config
@@ -71,19 +88,6 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 # Create folders if they don't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
-
-# Ensure all error messages are consistent and cover various scenarios
-ERROR_MESSAGES = {
-    'NO_FILE': {'message': 'No file part in request', 'code': 400},
-    'NO_SELECTED_FILE': {'message': 'No file selected', 'code': 400},
-    'INVALID_IMAGE': {'message': 'Invalid or corrupted image file', 'code': 400},
-    'FILE_TOO_LARGE': {'message': 'File size exceeds maximum allowed size of 20MB', 'code': 413},
-    'PROCESSING_ERROR': {'message': 'Error processing image', 'code': 500},
-    'INVALID_FILE_TYPE': {'message': 'Invalid file type. Only JPEG, PNG, and GIF are allowed', 'code': 400},
-    'DIMENSIONS_TOO_LARGE': {'message': 'Image dimensions exceed 5000x5000 pixels', 'code': 400},
-    'UNAUTHORIZED_ACCESS': {'message': 'Unauthorized access', 'code': 401},
-    'RATE_LIMIT_EXCEEDED': {'message': 'Rate limit exceeded. Try again later.', 'code': 429}
-}
 
 # Function to process image (convert to grayscale)
 def process_image(image_path):
