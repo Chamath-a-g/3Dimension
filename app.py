@@ -91,6 +91,7 @@ os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
 # Function to process image (convert to grayscale)
 def process_image(image_path):
+    """Process the given image and convert it to grayscale."""
     try:
         img = cv2.imread(image_path)
         if img is None:
@@ -104,6 +105,7 @@ def process_image(image_path):
 
 # Function to validate image
 def validate_image(file):
+    """Validate the uploaded image for type, size, and dimensions."""
     # Check file type
     allowed_types = ['image/jpeg', 'image/png', 'image/gif']
     if file.content_type not in allowed_types:
@@ -133,6 +135,7 @@ def validate_image(file):
 @require_api_key
 @limiter.limit('10 per minute')
 def upload_file():
+    """Upload a file and return its path and response time."""
     start_time = datetime.now()
     
     if 'file' not in request.files:
@@ -156,11 +159,9 @@ def upload_file():
         file.save(file_path)
         
         response_time = (datetime.now() - start_time).total_seconds()
-        return jsonify({
-            'message': 'File uploaded successfully',
-            'file_path': file_path,
-            'response_time': response_time
-        }), 200
+        return jsonify(generate_response([
+            {'message': 'File uploaded successfully', 'file_path': file_path, 'response_time': response_time}
+        ], 1, 1, 1)), 200
     except Exception:
         return jsonify(ERROR_MESSAGES['PROCESSING_ERROR']), ERROR_MESSAGES['PROCESSING_ERROR']['code']
 
@@ -169,6 +170,7 @@ def upload_file():
 @require_api_key
 @limiter.limit('10 per minute')
 def process_blueprint():
+    """Process an uploaded image and return the processed image path."""
     start_time = datetime.now()
     
     if 'file' not in request.files:
@@ -192,18 +194,14 @@ def process_blueprint():
     try:
         filepath = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(filepath)
-
         processed_image_path = process_image(filepath)
         if processed_image_path is None:
             return jsonify(ERROR_MESSAGES['INVALID_IMAGE']), ERROR_MESSAGES['INVALID_IMAGE']['code']
 
         response_time = (datetime.now() - start_time).total_seconds()
-        return jsonify({
-            'message': 'File processed successfully',
-            'original_text': text_data,
-            'processed_image': processed_image_path,
-            'response_time': response_time
-        }), 200
+        return jsonify(generate_response([
+            {'message': 'Image processed successfully', 'processed_image_path': processed_image_path, 'response_time': response_time}
+        ], 1, 1, 1)), 200
     except Exception:
         return jsonify(ERROR_MESSAGES['PROCESSING_ERROR']), ERROR_MESSAGES['PROCESSING_ERROR']['code']
 
