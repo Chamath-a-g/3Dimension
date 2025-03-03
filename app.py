@@ -46,6 +46,37 @@ def generate_response(items, current_page, total_pages, total_items):
         }
     }
 
+# Function to convert OpenCV output into JSON format for Three.js
+def convert_to_json_format(rooms_data):
+    """Convert processed room data into a JSON format compatible with Three.js."""
+    rooms = []
+    for room in rooms_data:
+        room_json = {
+            "id": room['id'],
+            "name": room['name'],
+            "dimensions": room['dimensions'],
+            "walls": []
+        }
+        for wall in room['walls']:
+            wall_json = {
+                "id": wall['id'],
+                "coordinates": {
+                    "start": wall['coordinates']['start'],
+                    "end": wall['coordinates']['end']
+                },
+                "thickness": wall['thickness']
+            }
+            room_json["walls"].append(wall_json)
+        rooms.append(room_json)
+    return {
+        "status": "success",
+        "message": "Data retrieved successfully",
+        "data": {
+            "rooms": rooms
+        },
+        "errors": []
+    }
+
 # Initialize rate limiter
 limiter = Limiter(
     app=app,
@@ -202,6 +233,40 @@ def process_blueprint():
         return jsonify(generate_response([
             {'message': 'Image processed successfully', 'processed_image_path': processed_image_path, 'response_time': response_time}
         ], 1, 1, 1)), 200
+    except Exception:
+        return jsonify(ERROR_MESSAGES['PROCESSING_ERROR']), ERROR_MESSAGES['PROCESSING_ERROR']['code']
+
+# New API Route: Convert OpenCV output into JSON format for Three.js
+@app.route('/convert_to_json', methods=['POST'])
+@require_api_key
+@limiter.limit('10 per minute')
+def convert_to_json():
+    """Convert OpenCV output into JSON format for Three.js."""
+    start_time = datetime.now()
+    
+    # Assuming rooms_data is obtained from OpenCV processing
+    rooms_data = [
+        {
+            "id": "room1",
+            "name": "Living Room",
+            "dimensions": {"width": 5.0, "length": 7.0, "height": 3.0},
+            "walls": [
+                {
+                    "id": "wall1",
+                    "coordinates": {
+                        "start": {"x": 0, "y": 0, "z": 0},
+                        "end": {"x": 5, "y": 0, "z": 0}
+                    },
+                    "thickness": 0.2
+                }
+            ]
+        }
+    ]
+
+    try:
+        json_output = convert_to_json_format(rooms_data)
+        response_time = (datetime.now() - start_time).total_seconds()
+        return jsonify(json_output), 200
     except Exception:
         return jsonify(ERROR_MESSAGES['PROCESSING_ERROR']), ERROR_MESSAGES['PROCESSING_ERROR']['code']
 
