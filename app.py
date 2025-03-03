@@ -15,19 +15,24 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
 # Function to process image (convert to grayscale)
+
+
 def process_image(image_path):
     try:
         img = cv2.imread(image_path)
         if img is None:
             return None  # Return None if the image is invalid
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        processed_path = os.path.join(PROCESSED_FOLDER, "processed_" + os.path.basename(image_path))
+        processed_path = os.path.join(
+            PROCESSED_FOLDER, "processed_" + os.path.basename(image_path))
         cv2.imwrite(processed_path, gray)
         return processed_path
     except Exception as e:
         return None
 
 # New API Route: Upload a file from React
+
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -43,6 +48,8 @@ def upload_file():
     return jsonify({'message': 'File uploaded successfully!', 'file_path': file_path}), 200
 
 # Existing API Route: Process an image with text input
+
+
 @app.route('/process', methods=['POST'])
 def process_blueprint():
     if 'file' not in request.files:
@@ -69,6 +76,7 @@ def process_blueprint():
         'original_text': text_data,
         'processed_image': processed_image_path
     }), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
