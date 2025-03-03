@@ -18,7 +18,26 @@ limiter = Limiter(
     app=app,
     key_func=get_remote_address,
     default_limits=['200 per day', '50 per hour']
-)
+){
+  "status": "success",  // Indicates the success or failure of the request
+  "message": "Data retrieved successfully",  // A human-readable message
+  "data": {  // Main data payload
+    "items": [  // Array of items (can be objects or primitive types)
+      {
+        "id": "123",  // Unique identifier for the item
+        "name": "Item Name",  // Name or title of the item
+        "description": "Description of the item",  // Description of the item
+        "created_at": "2025-03-03T16:20:37+05:30",  // Timestamp of creation
+        "updated_at": "2025-03-03T16:20:37+05:30"  // Timestamp of last update
+      }
+    ],
+    "pagination": {  // Optional pagination information
+      "current_page": 1,
+      "total_pages": 5,
+      "total_items": 100
+    }
+  }  
+}
 
 # Security headers
 @app.after_request
