@@ -1,5 +1,5 @@
 import React from "react";
-import {BlueprintUploader} from "./BlueprintUploader";
+import { BlueprintUploader } from "./BlueprintUploader";
 
 function App() {
   return (
