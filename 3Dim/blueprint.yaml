@@ -1,0 +1,7 @@
+train: blueprint_dataset/images/train # path to training images
+val: blueprint_dataset/images/val # path to validation images
+test: blueprint_dataset/images/test #Optional:  path to test images
+
+nc: 3 # number of classes (adjust if you have more/fewer than 3 classes)
+
+names: ["door", "wall", "window"] # class names (must match your labeling)
