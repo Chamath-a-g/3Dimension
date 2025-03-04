@@ -38,6 +38,31 @@ class BlueprintProcessor:
             return cv2.resize(image, (width, height))
         return None
 
+    def _lines_are_similar(self, line1, line2, angle_threshold=10, distance_threshold=20):
+        """
+        Check if two lines are similar based on angle and proximity.
+        """
+        x1, y1, x2, y2 = line1[0]
+        x3, y3, x4, y4 = line2[0]
+        
+        # Calculate angles in degrees
+        angle1 = np.degrees(np.arctan2(y2 - y1, x2 - x1))
+        angle2 = np.degrees(np.arctan2(y4 - y3, x4 - x3))
+        
+        # Check if angles are similar
+        if abs(angle1 - angle2) > angle_threshold:
+            return False
+        
+        # Calculate distances between midpoints
+        midpoint1 = ((x1 + x2) / 2, (y1 + y2) / 2)
+        midpoint2 = ((x3 + x4) / 2, (y3 + y4) / 2)
+        
+        distance = np.linalg.norm(np.array(midpoint1) - np.array(midpoint2))
+        
+        return distance < distance_threshold
+
+    
+
     def preprocess(self) -> np.ndarray:
         """Preprocess blueprint for feature detection"""
         try:
