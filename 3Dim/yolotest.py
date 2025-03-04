@@ -5,7 +5,7 @@ import cv2
 model = YOLO('runs/detect/train7/weights/best.pt')  # Download if needed
 
 # Read image
-img = cv2.imread('images/image1.jpg')  # Replace with a real image path
+img = cv2.imread('images/B2.png')  # Replace with a real image path
 
 # Run inference on the image
 results = model.predict(img)
