@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import cv2
 
 # Load a pretrained YOLOv8n model
-model = YOLO('runs/detect/train7/weights/best.pt')  # Download if needed
+model = YOLO('runs/detect/train11/weights/best.pt')  # Download if needed
 
 # Read image
 img = cv2.imread('images/B1.png')  # Replace with a real image path
