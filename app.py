@@ -5,6 +5,8 @@ from datetime import datetime
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from functools import wraps
+from OPENCV.chapter1 import detect_blueprint_elements
+from OPENCV.read import display_results
 
 app = Flask(__name__)
 
@@ -66,5 +68,7 @@ def mock_data():
     ]
     return jsonify(generate_response(rooms_data)), 200
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    image_path = "d:/UNI/OOP [pro]/CW/3Dimension/OPENCV/Photos/bp7.png"  # Update with your image path
+    display_results(image_path)
     app.run(debug=True)
