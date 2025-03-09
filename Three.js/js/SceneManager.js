@@ -1,22 +1,22 @@
-import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 /**
  * Manages the Three.js scene, camera, renderer, and controls
  */
 export class SceneManager {
   constructor(containerId) {
-    this.container = document.getElementById(containerId)
+    this.container = document.getElementById(containerId);
 
     // Initialize Three.js components
-    this.initScene()
-    this.initCamera()
-    this.initRenderer()
-    this.initLights()
-    this.initControls()
+    this.initScene();
+    this.initCamera();
+    this.initRenderer();
+    this.initLights();
+    this.initControls();
 
     // Set initial camera position
-    this.setPerspectiveView()
+    this.setPerspectiveView();
   }
 
   initScene() {
@@ -28,7 +28,7 @@ export class SceneManager {
     this.scene.add(gridHelper)
 
     // Add axes helper for orientation
-    const axesHelper = new THREE.AxesHelper(5)
+    const axesHelper = new THREE.AxesHelper(0)
     this.scene.add(axesHelper)
   }
 
@@ -38,7 +38,7 @@ export class SceneManager {
     const aspect = width / height
 
     // Create perspective camera
-    this.camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000)
+    this.camera = new THREE.PerspectiveCamera(20, aspect, 0.1, 1000)
     this.camera.position.set(10, 10, 10)
     this.camera.lookAt(0, 0, 0)
   }
@@ -183,5 +183,42 @@ export class SceneManager {
   addToScene(object) {
     this.scene.add(object)
   }
+  // Add this method to your SceneManager class
+centerModel() {
+  if (!this.scene) return;
+  
+  // Create a bounding box for all objects in the scene
+  const boundingBox = new THREE.Box3();
+  
+  // Exclude the ground plane and axes from the calculation
+  this.scene.traverse(object => {
+      if (object.isMesh && 
+          object !== this.groundPlane && 
+          !object.name.includes('axis')) {
+          boundingBox.expandByObject(object);
+      }
+  });
+  
+  // Get the center of the bounding box
+  const center = new THREE.Vector3();
+  boundingBox.getCenter(center);
+  
+  // Move all meshes (except ground and axes) by the negative center offset
+  this.scene.traverse(object => {
+      if (object.isMesh && 
+          object !== this.groundPlane && 
+          !object.name.includes('axis')) {
+          object.position.x -= center.x;
+          object.position.z -= center.z;
+          // Keep Y position as is to maintain height
+      }
+  });
+  
+  // Update the orbit controls target
+  if (this.controls) {
+      this.controls.target.set(0, 0, 0);
+      this.controls.update();
+  }
+}
 }
 
