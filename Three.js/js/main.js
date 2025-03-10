@@ -12,6 +12,12 @@ class BlueprintApp {
     // Set up event listeners
     this.setupEventListeners();
 
+    // Add fullscreen change listeners
+    document.addEventListener('fullscreenchange', () => this.handleFullscreenChange());
+    document.addEventListener('webkitfullscreenchange', () => this.handleFullscreenChange());
+    document.addEventListener('mozfullscreenchange', () => this.handleFullscreenChange());
+    document.addEventListener('MSFullscreenChange', () => this.handleFullscreenChange());
+
     // Start render loop
     this.animate();
   }
@@ -48,6 +54,11 @@ class BlueprintApp {
       this.sceneManager.resetCamera();
     });
 
+    // Add fullscreen toggle listener
+    document.getElementById("fullscreen-view")?.addEventListener("click", () => {
+      this.toggleFullscreen();
+    });
+
     // Wall height slider
     const wallHeightSlider = document.getElementById("wall-height");
     const wallHeightValue = document.getElementById("wall-height-value");
@@ -64,6 +75,101 @@ class BlueprintApp {
     window.addEventListener("resize", () => {
       this.sceneManager.onWindowResize();
     });
+  }
+
+  // Fullscreen toggle method
+  toggleFullscreen() {
+    const container = document.getElementById('canvas-container');
+    
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.mozRequestFullScreen) { /* Firefox */
+        container.mozRequestFullScreen();
+      } else if (container.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        container.webkitRequestFullscreen();
+      } else if (container.msRequestFullscreen) { /* IE/Edge */
+        container.msRequestFullscreen();
+      }
+      
+      container.classList.add('fullscreen');
+      
+      // Create floating controls in fullscreen
+      const controls = document.createElement('div');
+      controls.id = 'fullscreen-controls';
+      controls.className = 'fullscreen-controls';
+      
+      const exitButton = document.createElement('button');
+      exitButton.textContent = 'Exit Fullscreen';
+      exitButton.addEventListener('click', () => {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      });
+      
+      controls.appendChild(exitButton);
+      container.appendChild(controls);
+      
+      // Create floating info panel
+      const infoPanel = document.createElement('div');
+      infoPanel.id = 'fullscreen-info';
+      infoPanel.className = 'fullscreen-info';
+      
+      // Copy content from the model-info element
+      const modelInfo = document.getElementById('model-info');
+      if (modelInfo) {
+        infoPanel.innerHTML = '<h3>Model Information</h3>' + modelInfo.innerHTML;
+      } else {
+        infoPanel.innerHTML = '<h3>Model Information</h3><p>No model information available</p>';
+      }
+      
+      container.appendChild(infoPanel);
+      
+      // Notify the SceneManager to resize
+      this.sceneManager.onWindowResize();
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+  }
+
+  // Handle fullscreen change events
+  handleFullscreenChange() {
+    const container = document.getElementById('canvas-container');
+    
+    if (!document.fullscreenElement) {
+      container.classList.remove('fullscreen');
+      
+      // Remove floating controls
+      const controls = document.getElementById('fullscreen-controls');
+      if (controls) {
+        controls.remove();
+      }
+      
+      // Remove floating info panel
+      const infoPanel = document.getElementById('fullscreen-info');
+      if (infoPanel) {
+        infoPanel.remove();
+      }
+      
+      // Notify the SceneManager to resize back
+      this.sceneManager.onWindowResize();
+    }
   }
 
   buildModel(blueprintData) {
@@ -83,18 +189,19 @@ class BlueprintApp {
 
     // Update info panel
     this.updateModelInfo(blueprintData);
-}
+  }
 
   updateModelInfo(blueprintData) {
     const infoElement = document.getElementById("model-info");
     if (!infoElement) return;
-
+  
     // Count elements
     const wallCount = blueprintData.walls?.length || 0;
     const doorCount = blueprintData.doors?.length || 0;
     const windowCount = blueprintData.windows?.length || 0;
-
-    infoElement.innerHTML = `
+  
+    // Create the HTML for model info
+    const infoHTML = `
       <p><strong>Elements detected:</strong></p>
       <ul>
         <li>Walls: ${wallCount}</li>
@@ -103,36 +210,25 @@ class BlueprintApp {
       </ul>
       <p><strong>Blueprint dimensions:</strong> ${this.modelBuilder.getModelDimensions()}</p>
     `;
+  
+    // Update the main info panel
+    infoElement.innerHTML = infoHTML;
+  
+    // Update fullscreen info panel if it exists
+    const fullscreenInfoElement = document.getElementById("fullscreen-info");
+    if (fullscreenInfoElement) {
+      fullscreenInfoElement.innerHTML = '<h3>Model Information</h3>' + infoHTML;
+    }
   }
 
   animate = () => {
     requestAnimationFrame(this.animate);
     this.sceneManager.update();
   };
-  // Inside the method where you load the JSON file and build the model:
-handleJSONFile(file) {
-  this.loader.loadFromFile(file)
-      .then(data => {
-          this.modelData = data;
-          this.modelBuilder.buildModel(data, this.wallHeight);
-          this.updateModelInfo(data);
-          
-          // Center the model after building
-          this.sceneManager.centerModel();
-          
-          // Update the scene
-          this.sceneManager.render();
-      })
-      .catch(error => {
-          console.error("Error loading JSON file:", error);
-          // Show error message
-          document.getElementById("model-info").innerHTML = 
-              `<p class="error">Error loading model: ${error.message}</p>`;
-      });
-}
 }
 
 // Initialize application when DOM is loaded
 window.addEventListener("DOMContentLoaded", () => {
   new BlueprintApp();
 });
+
