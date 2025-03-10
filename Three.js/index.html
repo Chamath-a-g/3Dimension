@@ -18,18 +18,19 @@
 <body>
     <div class="container">
         <header>
-            <h1>Blueprint to 3D Model Converter</h1>
+            <h1>3Dimension</h1>
         </header>
-        
-        <div class="controls">
-            <div class="file-input">
-                <label for="json-file">Upload YOLO JSON Data:</label>
+                    <div class="file-input">
+                <label for="json-file">Upload JSON Data:</label>
                 <input type="file" id="json-file" accept=".json">
             </div>
+        <div class="controls">
+
             <div class="view-controls">
                 <button id="top-view">Top View</button>
                 <button id="perspective-view">Perspective View</button>
                 <button id="reset-camera">Reset Camera</button>
+                <button id="fullscreen-view">Fullscreen</button>
             </div>
             <div class="model-controls">
                 <label for="wall-height">Wall Height (m):</label>
@@ -47,6 +48,7 @@
             </div>
         </div>
     </div>
+    
     
     <script type="module" src="js/main.js"></script>
 </body>
