@@ -1,39 +1,17 @@
-import * as THREE from "three"
+import * as THREE from "three";
+import { MaterialLibrary } from "./utils/MaterialLibrary.js";
 
 /**
  * Converts 2D blueprint data to 3D objects and adds them to the scene
  */
 export class ModelBuilder {
   constructor(sceneManager) {
-    this.sceneManager = sceneManager
-    this.wallHeight = 2.5 // Default wall height in meters
-    this.wallThickness = 0.2 // Default wall thickness in meters
+    this.sceneManager = sceneManager;
+    this.wallHeight = 2.5; // Default wall height in meters
+    this.wallThickness = 0.2; // Default wall thickness in meters
 
-    // Materials
-    this.materials = {
-      wall: new THREE.MeshStandardMaterial({
-        color: 0xeeeeee,
-        roughness: 0.7,
-        metalness: 0.1,
-      }),
-      floor: new THREE.MeshStandardMaterial({
-        color: 0xddddcc,
-        roughness: 0.8,
-        metalness: 0.1,
-      }),
-      door: new THREE.MeshStandardMaterial({
-        color: 0x8b4513,
-        roughness: 0.5,
-        metalness: 0.2,
-      }),
-      window: new THREE.MeshStandardMaterial({
-        color: 0xadd8e6,
-        transparent: true,
-        opacity: 0.6,
-        roughness: 0.2,
-        metalness: 0.5,
-      }),
-    }
+    // Get materials from the library
+    this.materials = MaterialLibrary.getMaterials();
 
     // Model bounds for centering and scaling
     this.modelBounds = {
@@ -41,9 +19,10 @@ export class ModelBuilder {
       maxX: Number.NEGATIVE_INFINITY,
       minY: Number.POSITIVE_INFINITY,
       maxY: Number.NEGATIVE_INFINITY,
-    }
+    };
   }
 
+  
   /**
    * Build 3D model from blueprint data
    * @param {Object} data - Blueprint data with walls, doors, and windows
@@ -257,5 +236,6 @@ export class ModelBuilder {
 
     return `Width: ${width}m × Depth: ${depth}m × Height: ${this.wallHeight}m`
   }
+  
 }
 
