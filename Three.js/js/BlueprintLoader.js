@@ -103,18 +103,18 @@ export class BlueprintLoader {
    * Generate sample blueprint data for testing
    * @returns {Object} - Sample blueprint data
    */
-  generateSampleData() {
-    // Create sample data based on a simple room
-    return {
-      walls: [
-        { start: { x: 0, y: 0 }, end: { x: 5, y: 0 }, thickness: 0.2 },
-        { start: { x: 5, y: 0 }, end: { x: 5, y: 4 }, thickness: 0.2 },
-        { start: { x: 5, y: 4 }, end: { x: 0, y: 4 }, thickness: 0.2 },
-        { start: { x: 0, y: 4 }, end: { x: 0, y: 0 }, thickness: 0.2 },
-      ],
-      doors: [{ position: { x: 2.5, y: 0 }, width: 0.9, height: 2.1, rotation: 0 }],
-      windows: [{ position: { x: 2.5, y: 4 }, width: 1.5, height: 1.2, sillHeight: 0.9, rotation: 0 }],
-    }
-  }
+  // generateSampleData() {
+  //   // Create sample data based on a simple room
+  //   return {
+  //     walls: [
+  //       { start: { x: 0, y: 0 }, end: { x: 5, y: 0 }, thickness: 0.2 },
+  //       { start: { x: 5, y: 0 }, end: { x: 5, y: 4 }, thickness: 0.2 },
+  //       { start: { x: 5, y: 4 }, end: { x: 0, y: 4 }, thickness: 0.2 },
+  //       { start: { x: 0, y: 4 }, end: { x: 0, y: 0 }, thickness: 0.2 },
+  //     ],
+  //     doors: [{ position: { x: 2.5, y: 0 }, width: 0.9, height: 2.1, rotation: 0 }],
+  //     windows: [{ position: { x: 2.5, y: 4 }, width: 1.5, height: 1.2, sillHeight: 0.9, rotation: 0 }],
+  //   }
+  // }
 }
 
