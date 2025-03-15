@@ -18,6 +18,9 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
+# Serve static files from the processed folder
+app.config['STATIC_FOLDER'] = PROCESSED_FOLDER
+
 # Function to process image (convert to grayscale)
 def process_image(image_path):
     try:
@@ -28,7 +31,8 @@ def process_image(image_path):
         processed_path = os.path.join(PROCESSED_FOLDER, "processed_" + os.path.basename(image_path))
         cv2.imwrite(processed_path, gray)
         return processed_path
-    except Exception:
+    except Exception as e:
+        print(f"Error processing image: {e}")
         return None
 
 # New API Route: Upload a file from React (Reject >20MB)
@@ -41,11 +45,19 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
+    # Check file type
+    filename = file.filename
+    if not filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+        return jsonify({'error': 'Only .png, .jpg, and .jpeg files are allowed!'}), 400
+        
     # Check file size
     if request.content_length > MAX_FILE_SIZE:
         return jsonify({'error': 'File too large! Maximum allowed size is 20MB.'}), 400
 
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    # Secure the filename
+    from werkzeug.utils import secure_filename
+    secure_name = secure_filename(file.filename)
+    file_path = os.path.join(UPLOAD_FOLDER, secure_name)
     file.save(file_path)
 
     return jsonify({'message': 'File uploaded successfully!', 'file_path': file_path}), 200
@@ -66,8 +78,10 @@ def process_blueprint():
     if request.content_length > MAX_FILE_SIZE:
         return jsonify({'error': 'File too large! Maximum allowed size is 20MB.'}), 400
 
-    # Save uploaded file
-    filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+    # Secure the filename
+    from werkzeug.utils import secure_filename
+    secure_name = secure_filename(file.filename)
+    filepath = os.path.join(UPLOAD_FOLDER, secure_name)
     file.save(filepath)
 
     # Process the image
@@ -81,6 +95,19 @@ def process_blueprint():
         'original_text': text_data,
         'processed_image': processed_image_path
     }), 200
+
+# New route to get the processed image
+@app.route('/static/<filename>', methods=['GET'])
+def get_processed_image(filename):
+    try:
+        return send_file(os.path.join(PROCESSED_FOLDER, filename), mimetype='image/jpeg')
+    except Exception as e:
+        return jsonify({'error': f'Image not found: {str(e)}'}), 404
+
+# Health check endpoint
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'ok'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
