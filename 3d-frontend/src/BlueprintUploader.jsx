@@ -125,27 +125,30 @@ function BlueprintUploader() {
   return (
     <div className="flex flex-col min-h-screen w-full bg-gradient-to-b from-slate-900 to-blue-900">
       
-      {/* Header */}
+      {/* Header - Updated to match the image */}
       <header className="flex justify-between items-center bg-slate-900 text-white p-4">
         <div className="flex items-center space-x-4">
-          <img src="/Logo.png" alt="Logo" className="w-20 h-16" />
+          <img src="/Logo.png" alt="Logo" className="w-28 h-20" />
           <span className="text-2xl font-bold text-white">3Dimension</span>
         </div>
 
         <nav className="flex space-x-8">
-          <a href="/" className="text-gray-200 hover:text-white transition">Home</a>
-          <a href="/services" className="text-gray-200 hover:text-white transition">Services</a>
-          <a href="/about" className="text-gray-200 hover:text-white transition">About Us</a>
-          <a href="/team" className="text-gray-200 hover:text-white transition">Project Team</a>
-          <a href="/contact" className="text-gray-200 hover:text-white transition">Contact Us</a>
+          <a href="/" className="text-white hover:text-blue-300 transition"style={{color: 'white'}}>Home</a>
+          <a href="/services" className="text-white hover:text-blue-300 transition"style={{color: 'white'}}>Services</a>
+          <a href="/about" className="text-white hover:text-blue-300 transition"style={{color: 'white'}}>About Us</a>
+          <a href="/team" className="text-white hover:text-blue-300 transition"style={{color: 'white'}}>Project Team</a>
+          <a href="/contact" className="text-white hover:text-blue-300 transition"style={{color: 'white'}}>Contact Us</a>
         </nav>
 
-        <a href="/get-started" className="bg-gray-600 hover:bg-gray-500 text-white px-6 py-2 rounded-full transition">
-          Get Started
-        </a>
+        {/* Combined Login/Signup button */}
+        <div className="flex space-x-3">
+          <a href="/signup" className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-full transition"style={{color: 'white'}}>
+            Login/Signup
+          </a>
+        </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section - Removed Get Started and Watch Demo buttons */}
       <div className="text-center py-20 px-4">
         <h1 className="text-5xl font-bold mb-4">
           <span className="text-white">Transform 2D Blueprints into </span>
@@ -247,9 +250,6 @@ function BlueprintUploader() {
               <div className="mt-4 flex justify-center">
                 <button className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition mr-3">
                   Download 3D Model
-                </button>
-                <button className="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded-lg transition">
-                  View in AR
                 </button>
               </div>
             </div>
