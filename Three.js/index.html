@@ -18,9 +18,6 @@
         }
     }
     </script>
-    <!-- <script src="https://unpkg.com/three@0.150.1/examples/js/exporters/GLTFExporter.js"></script> -->
-    <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-    
 </head>
 <body>
     <div class="hero-background">
@@ -56,28 +53,13 @@
         </div>
         
         <div class="info-panel">
-            <div class="info-flex-container">
-                <div class="info-content">
-                    <h3><i class="fas fa-info-circle"></i> Model Information</h3>
-                    <div id="model-info">
-                        <p>No model loaded. Please upload JSON data.</p>
-                    </div>
-                </div>
-                <div class="info-sidebar">
-                    <div class="export-dropdown">
-                        <button id="export-button" class="control-button">Export 3D Model <i class="fas fa-caret-down"></i></button>
-                        <div class="export-dropdown-content">
-                            <a href="#" id="export-gltf">GLTF Format (.gltf)</a>
-                            <a href="#" id="export-obj">OBJ Format (.obj)</a>
-                            <a href="#" id="export-dxf">DXF Format (.dxf)</a>
-                        </div>
-                    </div>
-                </div>
+            <h3><i class="fas fa-info-circle"></i> Model Information</h3>
+            <div id="model-info">
+                <p>No model loaded. Please upload JSON data.</p>
             </div>
         </div>
     </div>
     
     <script type="module" src="js/main.js"></script>
 </body>
-
 </html>
