@@ -2,12 +2,16 @@ import { BlueprintLoader } from "./BlueprintLoader.js";
 import { SceneManager } from "./SceneManager.js";
 import { ModelBuilder } from "./ModelBuilder.js";
 
+
 class BlueprintApp {
   constructor() {
     // Initialize components
     this.sceneManager = new SceneManager("canvas-container");
     this.blueprintLoader = new BlueprintLoader();
     this.modelBuilder = new ModelBuilder(this.sceneManager);
+    
+    // Store current blueprint data
+    this.currentBlueprintData = null;
 
     // Set up event listeners
     this.setupEventListeners();
@@ -24,22 +28,62 @@ class BlueprintApp {
 
   setupEventListeners() {
     // File upload handler
-    const fileInput = document.getElementById("json-file");
-    if (fileInput) {
-      fileInput.addEventListener("change", async (event) => {
-        const file = event.target.files?.[0];
-        if (file) {
-          try {
-            const blueprintData = await this.blueprintLoader.loadFromFile(file);
-            console.log("Loaded blueprint data:", blueprintData);
-            this.buildModel(blueprintData);
-          } catch (error) {
-            console.error("Error loading blueprint:", error);
-            alert("Error loading blueprint file. Please check the console for details.");
-          }
+const fileInput = document.getElementById("json-file");
+if (fileInput) {
+  fileInput.addEventListener("change", async (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        // First load the new blueprint data
+        const blueprintData = await this.blueprintLoader.loadFromFile(file);
+        console.log("Loaded new blueprint data:", blueprintData);
+        
+        // Clear the scene first
+        try {
+          console.log("Attempting to clear scene...");
+          this.sceneManager.clearScene();
+          console.log("Scene cleared successfully");
+        } catch (clearError) {
+          console.error("Error clearing scene:", clearError);
+          // Recreate the scene if clearing failed
+          this.sceneManager.scene = new THREE.Scene();
+          this.sceneManager.scene.background = new THREE.Color(0xf0f0f0);
         }
-      });
+        
+        // Reset the model builder state
+        if (this.modelBuilder) {
+          console.log("Resetting model builder state...");
+          // Reset model bounds
+          this.modelBuilder.modelBounds = {
+            minX: Number.POSITIVE_INFINITY,
+            maxX: Number.NEGATIVE_INFINITY,
+            minY: Number.POSITIVE_INFINITY,
+            maxY: Number.NEGATIVE_INFINITY,
+          };
+          
+          // Clear openings array
+          this.modelBuilder.openings = [];
+        }
+        
+        // Set the new blueprint data
+        this.currentBlueprintData = blueprintData;
+        
+        // Build the new model
+        console.log("Building new model...");
+        this.buildModel(blueprintData);
+        
+        // Reset the file input
+        fileInput.value = "";
+      } catch (error) {
+        console.error("Error loading blueprint:", error);
+        alert("Error loading blueprint file. Please check the console for details.");
+        // Reset the file input
+        fileInput.value = "";
+      }
     }
+  });
+}
+    
 
     // Camera view controls
     document.getElementById("top-view")?.addEventListener("click", () => {
@@ -59,22 +103,72 @@ class BlueprintApp {
       this.toggleFullscreen();
     });
 
-    // Wall height slider
-    const wallHeightSlider = document.getElementById("wall-height");
-    const wallHeightValue = document.getElementById("wall-height-value");
+    // Wall height slider handler
+// In the setupEventListeners method, update the wall height slider handler
 
-    if (wallHeightSlider && wallHeightValue) {
-      wallHeightSlider.addEventListener("input", (event) => {
-        const height = Number.parseFloat(event.target.value);
-        wallHeightValue.textContent = height.toFixed(1);
-        this.modelBuilder.updateWallHeight(height);
-      });
+// Wall height slider handler
+const wallHeightSlider = document.getElementById("wall-height");
+const wallHeightValue = document.getElementById("wall-height-value");
+
+if (wallHeightSlider) {
+  wallHeightSlider.addEventListener("input", (event) => {
+    const height = parseFloat(event.target.value);
+    
+    // Update the displayed value in the UI
+    if (wallHeightValue) {
+      wallHeightValue.textContent = height.toFixed(1);
     }
-
+    
+    if (this.modelBuilder && !isNaN(height)) {
+      this.modelBuilder.wallHeight = height;
+      
+      // Safe rebuild with error handling
+      try {
+        console.log("Rebuilding model with new wall height:", height);
+        this.rebuildModel();
+      } catch (error) {
+        console.error("Error rebuilding model:", error);
+        // Try to recover by recreating the scene
+        try {
+          console.log("Attempting recovery...");
+          this.sceneManager.scene = new THREE.Scene();
+          this.sceneManager.scene.background = new THREE.Color(0xf0f0f0);
+          
+          // Try to rebuild again
+          if (this.currentBlueprintData) {
+            this.buildModel(this.currentBlueprintData);
+          }
+        } catch (recoveryError) {
+          console.error("Recovery failed:", recoveryError);
+        }
+      }
+    }
+  });
+}
     // Handle window resize
     window.addEventListener("resize", () => {
       this.sceneManager.onWindowResize();
     });
+  }
+
+  rebuildModel() {
+    if (!this.currentBlueprintData) {
+      console.warn("No blueprint data to rebuild");
+      return;
+    }
+    
+    try {
+      console.log("Clearing scene for rebuild...");
+      this.sceneManager.clearScene();
+      console.log("Building model from current data...");
+      this.buildModel(this.currentBlueprintData);
+    } catch (error) {
+      console.error("Error in rebuildModel:", error);
+      // Attempt recovery
+      this.sceneManager.scene = new THREE.Scene();
+      this.sceneManager.scene.background = new THREE.Color(0xf0f0f0);
+      this.buildModel(this.currentBlueprintData);
+    }
   }
 
   // Fullscreen toggle method
@@ -174,19 +268,19 @@ class BlueprintApp {
 
   buildModel(blueprintData) {
     console.log("Building model with data:", blueprintData);
-
+  
     // Clear previous model
     this.sceneManager.clearScene();
-
+    
     // Build new model from blueprint data
     this.modelBuilder.buildFromData(blueprintData);
-
+  
     // Center the model first
     this.sceneManager.centerModel();
-
+  
     // Then focus camera on the model
     this.sceneManager.focusOnModel();
-
+  
     // Update info panel
     this.updateModelInfo(blueprintData);
   }

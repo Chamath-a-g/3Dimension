@@ -39,8 +39,8 @@ export class SceneManager {
 
     // Create perspective camera
     this.camera = new THREE.PerspectiveCamera(20, aspect, 0.1, 1000)
-    this.camera.position.set(10, 10, 10)
-    this.camera.lookAt(0, 0, 0)
+    this.camera.position.set(50, 50, 50)
+    this.camera.lookAt(50, 0, 0)
   }
 
   initRenderer() {
@@ -103,28 +103,55 @@ export class SceneManager {
   }
 
   clearScene() {
-    // Remove all objects except grid and axes helpers
-    this.scene.traverse((object) => {
-      if (
-        !(object instanceof THREE.GridHelper) &&
-        !(object instanceof THREE.AxesHelper) &&
-        !(object instanceof THREE.Light)
-      ) {
-        if (object.geometry) {
-          object.geometry.dispose()
-        }
-        if (object.material) {
-          if (Array.isArray(object.material)) {
-            object.material.forEach((material) => material.dispose())
-          } else {
-            object.material.dispose()
-          }
-        }
-        if (object.parent) {
-          object.parent.remove(object)
+    // Safety check - if we don't have a scene, recreate it
+    if (!this.scene) {
+      console.warn("Scene was undefined, recreating it");
+      this.scene = new THREE.Scene();
+      this.scene.background = new THREE.Color(0xf0f0f0);
+      return;
+    }
+  
+    // Safely remove all children
+    const objectsToRemove = [...this.scene.children];
+    
+    objectsToRemove.forEach(object => {
+      // Dispose of geometries and materials to prevent memory leaks
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
+      
+      if (object.material) {
+        // Handle materials (could be an array or a single material)
+        if (Array.isArray(object.material)) {
+          object.material.forEach(material => {
+            if (material.map) material.map.dispose();
+            material.dispose();
+          });
+        } else {
+          if (object.material.map) object.material.map.dispose();
+          object.material.dispose();
         }
       }
-    })
+      
+      // Remove from scene
+      this.scene.remove(object);
+    });
+    
+    console.log("Scene cleared successfully");
+  }
+
+  reset() {
+    // Clear all objects from the scene
+    this.clearScene();
+    
+    // Reset camera position
+    this.resetCamera();
+    
+    // Update controls
+    this.controls.update();
+    
+    // Force renderer to clear buffers
+    this.renderer.clear();
   }
 
   setTopView() {
@@ -184,41 +211,120 @@ export class SceneManager {
     this.scene.add(object)
   }
   // Add this method to your SceneManager class
-centerModel() {
-  if (!this.scene) return;
-  
-  // Create a bounding box for all objects in the scene
-  const boundingBox = new THREE.Box3();
-  
-  // Exclude the ground plane and axes from the calculation
-  this.scene.traverse(object => {
-      if (object.isMesh && 
-          object !== this.groundPlane && 
-          !object.name.includes('axis')) {
-          boundingBox.expandByObject(object);
-      }
-  });
-  
-  // Get the center of the bounding box
-  const center = new THREE.Vector3();
-  boundingBox.getCenter(center);
-  
-  // Move all meshes (except ground and axes) by the negative center offset
-  this.scene.traverse(object => {
-      if (object.isMesh && 
-          object !== this.groundPlane && 
-          !object.name.includes('axis')) {
-          object.position.x -= center.x;
-          object.position.z -= center.z;
-          // Keep Y position as is to maintain height
-      }
-  });
-  
-  // Update the orbit controls target
-  if (this.controls) {
-      this.controls.target.set(0, 0, 0);
-      this.controls.update();
+  centerModel() {
+    if (!this.scene) return;
+    
+    // Create a bounding box for all objects in the scene
+    const boundingBox = new THREE.Box3();
+    
+    // Track if we found any objects to center
+    let objectsFound = false;
+    
+    // Exclude grid helpers, axes helpers, and lights from the calculation
+    this.scene.traverse(object => {
+        if (object.isMesh && 
+            !(object instanceof THREE.GridHelper) && 
+            !(object instanceof THREE.AxesHelper) &&
+            !(object instanceof THREE.Light)) {
+            boundingBox.expandByObject(object);
+            objectsFound = true;
+        }
+    });
+    
+    // If no objects found, return
+    if (!objectsFound) return;
+    
+    // Get the center of the bounding box
+    const center = new THREE.Vector3();
+    boundingBox.getCenter(center);
+    
+    // Move all meshes (except grid, axes, and lights) by the negative center offset
+    this.scene.traverse(object => {
+        if (object.isMesh && 
+            !(object instanceof THREE.GridHelper) && 
+            !(object instanceof THREE.AxesHelper) &&
+            !(object instanceof THREE.Light)) {
+            object.position.x -= center.x;
+            object.position.z -= center.z;
+            // Keep Y position as is to maintain height
+        }
+    });
+    
+    // Update the orbit controls target
+    if (this.controls) {
+        this.controls.target.set(0, 0, 0);
+        this.controls.update();
+    }
   }
-}
+ 
+
+initSceneElements() {
+  // Add grid helper for reference
+  const gridHelper = new THREE.GridHelper(20, 20, 0x888888, 0xcccccc);
+  this.scene.add(gridHelper);
+
+  // Add axes helper for orientation
+  const axesHelper = new THREE.AxesHelper(0);
+  this.scene.add(axesHelper);
+  
+  // Add lights
+  this.initLights();
 }
 
+clearScene() {
+  // Safety check - if we don't have a scene, recreate it
+  if (!this.scene) {
+    console.warn("Scene was undefined, recreating it");
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0xf0f0f0);
+    this.initSceneElements();
+    return;
+  }
+
+  // First find and preserve lights, grids, and axes
+  const lightsAndHelpers = [];
+  const objectsToRemove = [];
+  
+  this.scene.children.forEach(object => {
+    if (object instanceof THREE.Light || 
+        object instanceof THREE.GridHelper || 
+        object instanceof THREE.AxesHelper) {
+      lightsAndHelpers.push(object);
+    } else {
+      objectsToRemove.push(object);
+    }
+  });
+  
+  // Now remove only the model objects, not lights and helpers
+  objectsToRemove.forEach(object => {
+    // Dispose of geometries and materials to prevent memory leaks
+    if (object.geometry) {
+      object.geometry.dispose();
+    }
+    
+    if (object.material) {
+      // Handle materials (could be an array or a single material)
+      if (Array.isArray(object.material)) {
+        object.material.forEach(material => {
+          if (material.map) material.map.dispose();
+          material.dispose();
+        });
+      } else {
+        if (object.material.map) object.material.map.dispose();
+        object.material.dispose();
+      }
+    }
+    
+    // Remove from scene
+    this.scene.remove(object);
+  });
+  
+  // If somehow we lost our lights or helpers, add them back
+  if (lightsAndHelpers.length === 0) {
+    this.initSceneElements();
+  }
+  
+  console.log("Scene cleared successfully while preserving lights");
+}
+
+}
