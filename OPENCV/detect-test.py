@@ -179,6 +179,25 @@ def detect_blueprint_elements(image_path):
                     cv.rectangle(result, (x, y), (x+w, y+h), (255, 0, 0), 2)  # Blue for windows
     
     return result, wall_mask, door_mask, window_mask
+def is_perpendicular_to_wall(angle, wall_lines, threshold=20):
+    """Check if a line is perpendicular to any wall line."""
+    if wall_lines is None:
+        return False
+        
+    for wall in wall_lines:
+        wx1, wy1, wx2, wy2 = wall[0]
+        wall_angle = np.arctan2(wy2 - wy1, wx2 - wx1) * 180 / np.pi
+        
+        # Calculate angle difference and normalize to 0-90
+        angle_diff = abs(angle - wall_angle) % 180
+        if angle_diff > 90:
+            angle_diff = 180 - angle_diff
+            
+        # If close to 90 degrees (perpendicular)
+        if 90 - threshold <= angle_diff <= 90 + threshold:
+            return True
+            
+    return False
     
     
     
