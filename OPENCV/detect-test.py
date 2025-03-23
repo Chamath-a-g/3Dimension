@@ -218,6 +218,25 @@ def is_parallel_to_wall(angle, wall_lines, threshold=20):
             return True
             
     return False
+
+def display_results(image_path):
+    """Process and display the blueprint detection results."""
+    result, wall_mask, door_mask, window_mask = detect_blueprint_elements(image_path)
+    
+    if result is None:
+        print("Detection failed.")
+        return
+    
+    # Convert masks to BGR for visualization
+    wall_vis = cv.cvtColor(wall_mask, cv.COLOR_GRAY2BGR)
+    door_vis = cv.cvtColor(door_mask, cv.COLOR_GRAY2BGR)
+    window_vis = cv.cvtColor(window_mask, cv.COLOR_GRAY2BGR)
+    
+    # Make the mask visualization more visible
+    wall_vis[wall_mask > 0] = [0, 255, 0]  # Green for walls
+    door_vis[door_mask > 0] = [0, 0, 255]  # Red for doors
+    window_vis[window_mask > 0] = [255, 0, 0]  # Blue for windows
+    
     
     
     
