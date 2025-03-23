@@ -1,16 +1,10 @@
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 
 
 def display_results(image_path):
     """Process and display the blueprint detection results."""
-    # Ensure the image path is correct and accessible
-    if not os.path.isfile(image_path):
-        print("Error: Image file not found or inaccessible.")
-        return
-    
     result, wall_mask, door_mask, window_mask = detect_blueprint_elements(image_path)
     
     if result is None:

@@ -148,7 +148,7 @@ def is_parallel_to_wall(angle, wall_lines, threshold=20):
     return False
 
 # Example usage
-image_path = "/Users/imashiariyasinghe/Documents/OPENCV/Photos/blueprint2.jpg"
+image_path = r"D:\UNI\OOP [pro]\CW\3Dimension\OPENCV\Photos\bp2.png"
 result, wall_mask, door_mask, window_mask = detect_blueprint_elements(image_path)
 
 cv.imshow("Detected Elements", result)

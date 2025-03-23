@@ -69,6 +69,6 @@ def mock_data():
     return jsonify(generate_response(rooms_data)), 200
 
 if __name__ == "__main__":
-    image_path = "d:/UNI/OOP [pro]/CW/3Dimension/OPENCV/Photos/bp7.png"  # Update with your image path
+    image_path = r"D:\UNI\OOP [pro]\CW\3Dimension\OPENCV\Photos\bp2.png"  # Update with your image path
     display_results(image_path)
     app.run(debug=True)
