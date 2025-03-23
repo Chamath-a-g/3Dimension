@@ -2,13 +2,19 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>My first three.js app</title>
+		<meta name="viewport" content="width =device-width, initial-scale=1.0">
+
+		<title>3Dimension</title>
 		<style>
-			body { margin: 0; }
+			body { margin: 0;  overflow:hidden } /*Scroll bar wont appear*/
+			canvas { display: block};
 		</style>
-		<script type="module" crossorigin src="/assets/index-D_cTXiNv.js"></script>
+		<script type="module" crossorigin src="/assets/index-DcDGbRnF.js"></script>
 	</head>
-	<body>
-		<h1>hello</h1>
+	<body>
+		<input type="file" id="blueprintInput" accept="image/*">
+		<canvas id="blueprintCanvas"></canvas> <!--ensures the usage of ES modules-->
+		<button onclick="exportModel(scene)">Export Model</button>
+		
 	</body>
 </html>

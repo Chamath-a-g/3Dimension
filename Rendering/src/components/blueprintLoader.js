@@ -3,6 +3,7 @@ import * as THREE from "three";
 // This function is used to load blueprints to the 3D space.
 export function loadBlueprint(scene, imagePath){
     const textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = "anonymous";
     textureLoader.load(
         imagePath,
         (texture) => {
@@ -25,10 +26,23 @@ export function loadBlueprint(scene, imagePath){
         },
         undefined,
         (error) => {
-            console.error("Error loading blueprint:", error);
+            console.error("Error loading blueprint:", error.message || error);
         }
     );
 
 
 
+}
+//This function is used to load blueprint to the 3D space by the user (Dynamic uploads)
+export function loaduserInput(scene){
+    const input =  document.getElementById("blueprintInput");
+
+    input.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            loadBlueprint(scene, url);
+        }
+    });
+    
 }

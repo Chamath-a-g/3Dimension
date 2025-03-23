@@ -1,20 +1,25 @@
 import { createScene } from "./components/scene.js";
-import { loadModel } from "./components/modelLoader.js";
 import { loadBlueprint } from "./components/blueprintLoader.js";
+import { loaduserInput  } from "./components/blueprintLoader.js";
+import { generate3DModel } from "./components/generateModel.js";
+
 
 //Initalizing scene, camera, renderer
 const {scene, camera, renderer, controls} = createScene();
 
-//Loading a 3D model
-//loadModel(scene, "location of the stored 3D model file. ");
-
 // Loading the blueprint as a background
-loadBlueprint(scene, "/Rendering/public/blueprint1.png");
+//loadBlueprint(scene, "/blueprint@2x.jpg");
 
-// Animation loop
+// Loading the user given blueprint as an background
+loaduserInput(scene);
+
+// Calling the 3D model generating function
+ generate3DModel(scene, blueprintCanvas);
+
+// Animation loop  
 function animate() {
   requestAnimationFrame(animate);
-  controls.update();
+  controls.update();5
   renderer.render(scene, camera);
 }
 animate();
