@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 
 
-def detect_walls_and_doors(image_path, thickness_threshold=5, min_wall_length=50, max_line_separation=5, door_gap_threshold=200, neighborhood_size=5):
+def detect_walls_and_doors(image_path, thickness_threshold=5, min_wall_length=50, max_line_separation=5, door_gap_threshold=200, door_min_length=30):
     """
-    Detects walls and doors in an architectural blueprint.  Improved door detection using rectangularity.
+    Detects walls and doors in an architectural blueprint. Filters by gap length.
 
     Args:
         image_path (str): Path to the blueprint image.
@@ -12,8 +12,7 @@ def detect_walls_and_doors(image_path, thickness_threshold=5, min_wall_length=50
         min_wall_length (int): Minimum length in pixels for a line to be a wall.
         max_line_separation (int): Maximum pixel distance to merge parallel lines.
         door_gap_threshold (int): Average pixel value threshold to consider a gap a door (higher = more strict).
-        neighborhood_size (int): Size of the neighborhood around the check points to average.
-
+        door_min_length (int): Minimum length of the gap to be considered a door.
     Returns:
         tuple: Lists of walls, doors, original image, and image with detections.
     """
@@ -87,19 +86,13 @@ def detect_walls_and_doors(image_path, thickness_threshold=5, min_wall_length=50
             if not merged:
                 merged_walls.append(wall1)
 
-        # Improved Door Detection: Require a more rectangular shape of the gap
+        # Door Detection: Require a more rectangular shape of the gap, and check gap length
         for (x1, y1), (x2, y2), length in merged_walls:
-            # Draw walls
-            cv2.line(img_with_detections, (x1, y1), (x2, y2),
-                     (0, 255, 0), 2)  # Green for walls
-            wall_segments.append(((x1, y1), (x2, y2), length))
-
-            # Find midpoint of the wall to check for rectangularity
+            # Find midpoint of the wall
             mid_x = int((x1 + x2) / 2)
             mid_y = int((y1 + y2) / 2)
 
-            # Check for a rectangular shape around the midpoint by examining
-            # the intensity values in the neighboring pixels
+            # Define the rectangular region
             # Width of the rectangular area to check (adjust as needed)
             width = 20
             # Height of the rectangular area to check (adjust as needed)
@@ -114,21 +107,29 @@ def detect_walls_and_doors(image_path, thickness_threshold=5, min_wall_length=50
             # Extract the region of interest (ROI) from the grayscale image
             roi = gray[y_start:y_end, x_start:x_end]
 
-            # Check if the ROI is empty (e.g., when the rectangle extends beyond image boundaries)
+            # Check if the ROI is empty
             if roi.size == 0:
                 continue
 
             # Calculate the average intensity value within the ROI
             average_val = np.mean(roi)
 
-            # Apply threshold to determine if the ROI represents a door
-            if average_val > door_gap_threshold:
+            # Calculate gap length
+            gap_length = length  # Approximation
+
+            # Apply the threshold based on average value and gap length
+            if average_val > door_gap_threshold and gap_length > door_min_length:  # Check Length as well
                 # Door detected, mark it
                 cv2.rectangle(img_with_detections, (x_start, y_start),
                               (x_end, y_end), (255, 0, 0), 2)  # Red for doors
-                # Store center coordinates
                 door_segments.append(
                     ((x_start + x_end) // 2, (y_start + y_end) // 2))
+
+            else:
+                # Draw just wall
+                cv2.line(img_with_detections, (x1, y1),
+                         (x2, y2), (0, 255, 0), 2)
+                wall_segments.append(((x1, y1), (x2, y2), length))
 
     return wall_segments, door_segments, img, img_with_detections
 
@@ -139,10 +140,10 @@ def main():
     min_wall_length = 50
     max_line_separation = 5
     door_gap_threshold = 200
-    neighborhood_size = 5
+    door_min_length = 30
 
     walls, doors, original_image, image_with_detections = detect_walls_and_doors(
-        image_path, thickness_threshold, min_wall_length, max_line_separation, door_gap_threshold, neighborhood_size)
+        image_path, thickness_threshold, min_wall_length, max_line_separation, door_gap_threshold, door_min_length)
 
     if walls:
         print("Detected Walls:")
