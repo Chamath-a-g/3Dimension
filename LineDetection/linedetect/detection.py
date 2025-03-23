@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def detect_walls(image_path, thickness_threshold=5):
+def detect_walls(image_path, thickness_threshold=100):
     """
     Detects walls in an architectural blueprint based on line thickness and calculates their lengths.
 
@@ -39,7 +39,7 @@ def detect_walls(image_path, thickness_threshold=5):
             # A simplified approach: Check the average pixel intensity in a region around the line
             line_mask = np.zeros_like(gray)
             # Draw a line on the mask, thickness 3
-            cv2.line(line_mask, (x1, y1), (x2, y2), 255, 3)
+            cv2.line(line_mask, (x1, y1), (x2, y2), 255, 5)
             mean_intensity = cv2.mean(gray, mask=line_mask)[0]
 
             # Determine if the line is a wall based on thickness (represented by mean intensity)
@@ -51,7 +51,7 @@ def detect_walls(image_path, thickness_threshold=5):
 
 
 def main():
-    image_path = "blueprint.png"  # Replace with the actual path to your image
+    image_path = "images/bp1.png"  # Replace with the actual path to your image
 
     walls = detect_walls(image_path)
 
