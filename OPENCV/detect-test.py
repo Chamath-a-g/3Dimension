@@ -198,6 +198,26 @@ def is_perpendicular_to_wall(angle, wall_lines, threshold=20):
             return True
             
     return False
+
+def is_parallel_to_wall(angle, wall_lines, threshold=20):
+    """Check if a line is parallel to any wall line."""
+    if wall_lines is None:
+        return False
+        
+    for wall in wall_lines:
+        wx1, wy1, wx2, wy2 = wall[0]
+        wall_angle = np.arctan2(wy2 - wy1, wx2 - wx1) * 180 / np.pi
+        
+        # Calculate angle difference and normalize to 0-90
+        angle_diff = abs(angle - wall_angle) % 180
+        if angle_diff > 90:
+            angle_diff = 180 - angle_diff
+            
+        # If close to 0 degrees (parallel) or 180 degrees (anti-parallel)
+        if angle_diff <= threshold or angle_diff >= 180 - threshold:
+            return True
+            
+    return False
     
     
     
