@@ -114,5 +114,43 @@ def detect_blueprint_elements(image_path):
                     if is_perpendicular_to_wall(angle, wall_lines):
                         cv.line(door_mask, (x1, y1), (x2, y2), 255, 2)
                         cv.line(result, (x1, y1), (x2, y2), (0, 0, 255), 2)  # Red for doors
+
+# WINDOW DETECTION
+    # Windows are typically shorter parallel lines on walls or small rectangles on walls
+    window_lines = cv.HoughLinesP(
+        cleaned_edges,
+        rho=1,
+        theta=np.pi/180,
+        threshold=15,
+        minLineLength=5,
+        maxLineGap=3
+    )
+    
+    if window_lines is not None:
+        for line in window_lines:
+            x1, y1, x2, y2 = line[0]
+            length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            
+            # Windows are typically shorter than doors but still structured
+            if 5 <= length <= 20:
+                # Check if it's near a wall but not part of the main wall
+                window_line_mask = np.zeros_like(gray)
+                cv.line(window_line_mask, (x1, y1), (x2, y2), 255, 1)
+                
+                # Create region for proximity checking
+                window_region = cv.dilate(window_line_mask, np.ones((3, 3), np.uint8), iterations=2)
+                
+                # Check proximity to walls without being a wall itself
+                wall_proximity = cv.bitwise_and(window_region, wall_mask)
+                line_on_wall = cv.bitwise_and(window_line_mask, wall_mask)
+                
+                # Windows are often parallel to walls, unlike doors
+                angle = np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi
+                
+                if (np.sum(wall_proximity) > 0 and np.sum(line_on_wall) == 0 and 
+                    is_parallel_to_wall(angle, wall_lines)):
+                    cv.line(window_mask, (x1, y1), (x2, y2), 255, 2)
+                    cv.line(result, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Blue for windows
+    
     
     
