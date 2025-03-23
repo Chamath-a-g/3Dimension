@@ -151,6 +151,34 @@ def detect_blueprint_elements(image_path):
                     is_parallel_to_wall(angle, wall_lines)):
                     cv.line(window_mask, (x1, y1), (x2, y2), 255, 2)
                     cv.line(result, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Blue for windows
+
+# Find contours in binary for potential rectangular windows
+    contours, _ = cv.findContours(binary, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+    
+    for contour in contours:
+        # Approximate the contour
+        epsilon = 0.04 * cv.arcLength(contour, True)
+        approx = cv.approxPolyDP(contour, epsilon, True)
+        
+        # If it's a rectangle or nearly so (4-6 points)
+        if 4 <= len(approx) <= 6:
+            # Get bounding box
+            x, y, w, h = cv.boundingRect(contour)
+            area = w * h
+            aspect_ratio = w / h if h > 0 else 0
+            
+            # Windows typically have a reasonable aspect ratio and are small
+            if 0.25 < aspect_ratio < 4 and 50 < area < 500:
+                # Check proximity to wall
+                window_region = np.zeros_like(gray)
+                cv.rectangle(window_region, (x, y), (x+w, y+h), 255, 2)
+                window_region = cv.dilate(window_region, np.ones((3, 3), np.uint8), iterations=2)
+                
+                if np.sum(cv.bitwise_and(window_region, wall_mask)) > 0:
+                    cv.rectangle(window_mask, (x, y), (x+w, y+h), 255, 2)
+                    cv.rectangle(result, (x, y), (x+w, y+h), (255, 0, 0), 2)  # Blue for windows
+    
+    return result, wall_mask, door_mask, window_mask
     
     
     
