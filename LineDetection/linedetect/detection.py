@@ -36,7 +36,9 @@ def detect_walls(image_path, thickness_threshold=5):
 
     if lines is not None:
         for line in lines:
+            potential_walls = []
             x1, y1, x2, y2 = line[0]
+            length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
             # Calculate line thickness (average pixel intensity)
             line_mask = np.zeros_like(gray)
