@@ -105,9 +105,12 @@ def detect_walls(image_path, thickness_threshold=5):
 
 
 def main():
-    image_path = "blueprint.png"  # Replace with your image path
+    image_path = "blueprint.png"  # Replace with image path
+    thickness_threshold = 5
+    min_wall_length = 100
 
-    walls, original_image, image_with_walls = detect_walls(image_path)
+    walls, original_image, image_with_walls = detect_walls(
+        image_path, thickness_threshold, min_wall_length, max_line_separation)
 
     if walls:
         print("Detected Walls:")
