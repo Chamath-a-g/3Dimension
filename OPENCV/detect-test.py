@@ -273,6 +273,10 @@ def display_results(image_path):
     plt.tight_layout()
     plt.show()
 
+if __name__ == "__main__":
+    image_path = "/Users/imashiariyasinghe/Documents/GitHub/3Dimension/OPENCV/Photos/bp8.png"  # Update with your image path
+    display_results(image_path)
+
     
     
     
