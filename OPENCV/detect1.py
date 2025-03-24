@@ -161,4 +161,5 @@ if __name__ == "__main__":
         import json
         print(json.dumps(blueprint_data, indent=4))
     else:
+        print("Blueprint element detection failed.")
         
