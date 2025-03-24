@@ -29,7 +29,7 @@ def detect_blueprint_elements(image_path):
 
     wall_lines_data = []
     door_data = []
-    
+    window_data = []
 
 
     if lines is not None:
