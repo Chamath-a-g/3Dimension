@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blueprint to 3D Model Converter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script async src="https://unpkg.com/es-module-shims/dist/es-module-shims.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <!-- <script src="https://unpkg.com/three@0.150.1/examples/js/exporters/GLTFExporter.js"></script> -->
+    <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    
+</head>
+<body>
+    <div class="hero-background">
+        <div class="blueprint-pattern"></div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="logo-icon"><i class="fas fa-cube"></i></div>
+                <h1>3Dimension</h1>
+            </div>
+            <p class="tagline">Transform your 2D blueprints into interactive 3D models</p>
+        </header>
+        
+        
+         <input type="file" id="json-file" accept=".json">
+        <div class="controls">
+            <div class="view-controls">
+                <button id="top-view"><i class="fas fa-arrows-alt"></i> Top View</button>
+                <button id="perspective-view"><i class="fas fa-cube"></i> Perspective</button>
+                <button id="reset-camera"><i class="fas fa-sync"></i> Reset</button>
+                <button id="fullscreen-view"><i class="fas fa-expand"></i> Fullscreen</button>
+            </div>
+            <div class="model-controls">
+                <label for="wall-height"><i class="fas fa-arrows-alt-v"></i> Wall Height (m):</label>
+                <input type="range" id="wall-height" min="2.3" max="5" step="0.2" value="3">
+                <span id="wall-height-value">3</span>
+            </div>
+        </div>
+        
+        <div id="canvas-container">
+        </div>
+        
+        <div class="info-panel">
+            <div class="info-flex-container">
+                <div class="info-content">
+                    <h3><i class="fas fa-info-circle"></i> Model Information</h3>
+                    <div id="model-info">
+                        <p>No model loaded. Please upload JSON data.</p>
+                    </div>
+                </div>
+                <div class="info-sidebar">
+                    <div class="export-dropdown">
+                        <button id="export-button" class="control-button">Export 3D Model <i class="fas fa-caret-down"></i></button>
+                        <div class="export-dropdown-content">
+                            <a href="#" id="export-gltf">GLTF Format (.gltf)</a>
+                            <a href="#" id="export-obj">OBJ Format (.obj)</a>
+                            <a href="#" id="export-dxf">DXF Format (.dxf)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
